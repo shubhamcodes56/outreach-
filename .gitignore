@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.server_uk.lock
+dashboard/node_modules/
+*.tmp
+.env
+accounts_db.json
