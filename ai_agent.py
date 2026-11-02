@@ -206,7 +206,7 @@ STRICT WRITING RULES:
      • 📈 Revenue Retention: Turning mobile visitors into confirmed, paying customers instead of losing them.
    - DIRECT CALL TO ACTION (NO COMPLIMENTARY WALKTHROUGH FLUFF): Ask directly for a brief 10-minute Google Meet or phone call:
      "Would you be open to a brief 10-minute Google Meet or quick call this Thursday or Friday to look at how we can eliminate this leak and outposition your local competitors?"
-5. Add this exact standalone sentence right before sign-off: "Explore recent selected systems (ONYX, PDR World, Kaktus, Salvas): [[PORTFOLIO_LINK]]"
+5. Add this exact standalone sentence right before sign-off: "Explore recent selected systems (ONYX, Vespera, Skybound, L'Éclat Vendôme): [[PORTFOLIO_LINK]]"
 6. Sign-off:
    Warm regards,
    {config.SENDER_NAME}
@@ -225,7 +225,7 @@ Output format (Valid JSON only):
         content = self._call_with_fallback(messages, json_mode=True)
         result = json.loads(content)
         result["body"] = _ensure_portfolio_reference(
-            result.get("body", ""), "Explore recent selected systems (ONYX, PDR World, Kaktus, Salvas): [[PORTFOLIO_LINK]]"
+            result.get("body", ""), "Explore recent selected systems (ONYX, Vespera, Skybound, L'Éclat Vendôme): [[PORTFOLIO_LINK]]"
         )
         return result
 
@@ -252,7 +252,7 @@ Guidelines:
 1. Keep it short (under 90 words).
 2. Point out that local competitors in {location} are picking up high-intent mobile searches simply because of minor mobile friction on their end.
 3. Ask if they have 10 minutes for a quick Google Meet this week to walk through how to plug this leak.
-4. Add: "Explore recent selected systems (ONYX, PDR World, Kaktus, Salvas): [[PORTFOLIO_LINK]]"
+4. Add: "Explore recent selected systems (ONYX, Vespera, Skybound, L'Éclat Vendôme): [[PORTFOLIO_LINK]]"
 5. Sign-off:
    Warm regards,
    {config.SENDER_NAME}
@@ -271,7 +271,7 @@ Output format (Valid JSON only):
         content = self._call_with_fallback(messages, json_mode=True)
         result = json.loads(content)
         result["body"] = _ensure_portfolio_reference(
-            result.get("body", ""), "Explore recent selected systems (ONYX, PDR World, Kaktus, Salvas): [[PORTFOLIO_LINK]]"
+            result.get("body", ""), "Explore recent selected systems (ONYX, Vespera, Skybound, L'Éclat Vendôme): [[PORTFOLIO_LINK]]"
         )
         return result
 

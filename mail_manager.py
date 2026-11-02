@@ -113,7 +113,7 @@ def build_kicksa_premium_html(sender_name: str, to_email: str, subject: str, bod
             <td style="padding: 10px 28px 28px 28px;">
               <div style="padding-top: 20px; border-top: 1px solid #1f1f27;">
                 <div style="font-size: 10px; font-weight: 800; letter-spacing: 1.5px; color: #a1a1aa; text-transform: uppercase; margin-bottom: 12px;">
-                  SELECTED WORK &bull; SYSTEMS ARCHITECTURE (ONYX, PDR WORLD, KAKTUS, SALVAS)
+                  SELECTED BUILDS &bull; LUXURY COMMERCE &amp; DIGITAL SYSTEMS (ONYX, VESPERA, SKYBOUND, L'ÉCLAT VENDÔME)
                 </div>
                 <!-- Animated Showcase Loop GIF -->
                 <a href="{portfolio_url}" target="_blank" style="display: block; text-decoration: none;">
