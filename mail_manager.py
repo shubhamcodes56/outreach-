@@ -34,11 +34,8 @@ def portfolio_optout_requested(text: str) -> bool:
 
 
 def ensure_portfolio_link(body_text: str) -> str:
-    """Add one hidden-URL portfolio link to outbound copy, except opt-out replies."""
-    body_text = str(body_text or "").strip()
-    if PORTFOLIO_MARKER in body_text or portfolio_optout_requested(body_text):
-        return body_text
-    return f"{body_text}\n\nExamples of my work: {PORTFOLIO_MARKER}".strip()
+    """The HTML template already embeds the dedicated portfolio showcase and CTA button."""
+    return str(body_text or "").strip()
 
 
 def build_kicksa_premium_html(sender_name: str, to_email: str, subject: str, body_text: str, portfolio_url: str) -> str:
@@ -46,16 +43,23 @@ def build_kicksa_premium_html(sender_name: str, to_email: str, subject: str, bod
     Renders a bold, black, ultra-premium HTML email template for Kicksa Studio
     featuring minimalist branding, high-contrast typography, and a dynamic loop showcase.
     """
-    escaped_body = html.escape(body_text)
+    # Strip any emojis from body
+    cleaned_body = re.sub(r'[\U00010000-\U0010ffff]', '', str(body_text or ""))
+    # Strip any accidental inline explore text
+    cleaned_body = re.sub(r'(?i)explore recent selected systems[^\n]*', '', cleaned_body)
+    cleaned_body = cleaned_body.replace(PORTFOLIO_MARKER, '')
+
+    escaped_body = html.escape(cleaned_body)
     paragraphs = [p.strip() for p in re.split(r'\n{2,}|\r\n\r\n', escaped_body) if p.strip()]
 
     formatted_paragraphs = []
     for p in paragraphs:
-        if PORTFOLIO_MARKER in p:
-            p = p.replace(PORTFOLIO_MARKER, f'<a href="{portfolio_url}" target="_blank" style="color: #00f2fe; text-decoration: underline; font-weight: 600;">Explore live systems &rarr;</a>')
+        # Filter out any lingering portfolio text line
+        if "explore recent selected systems" in p.lower() or "explore live systems" in p.lower():
+            continue
 
         lines = p.split('\n')
-        bullet_lines = [l for l in lines if l.strip().startswith(('•', '-', '*', '📱', '⚡', '📍', '📈', '💡'))]
+        bullet_lines = [l for l in lines if l.strip().startswith(('•', '-', '*'))]
         if bullet_lines and len(bullet_lines) >= 2:
             card_content = '<br>'.join(lines)
             formatted_paragraphs.append(

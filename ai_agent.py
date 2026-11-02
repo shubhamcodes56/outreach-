@@ -31,26 +31,24 @@ class AIProviderRateLimitError(RuntimeError):
 PORTFOLIO_MARKER = "[[PORTFOLIO_LINK]]"
 
 
-def _ensure_portfolio_reference(body: str, fallback_sentence: str) -> str:
-    """Keep generated copy clean and place one clickable portfolio marker right before the sign-off."""
+def _clean_body_copy(body: str) -> str:
+    """Keep generated copy clean, executive, and free of emojis or redundant portfolio sentences."""
     body = str(body or "").strip()
     
+    # Strip any emojis
+    body = re.sub(r'[\U00010000-\U0010ffff]', '', body)
+    
+    # Strip redundant portfolio lines or markers
+    body = re.sub(r'(?im)^.*explore recent selected systems.*$', '', body)
+    body = re.sub(r'(?im)^.*explore live systems.*$', '', body)
+    body = body.replace(PORTFOLIO_MARKER, '')
+
     # Remove any raw URLs the model might have written inside the letter
     body = re.sub(r"(?i)\bhttps?://[^\s<>\"']+", "", body)
     body = re.sub(r"(?i)\bwww\.[^\s<>\"']+", "", body)
 
-    # Ensure fallback sentence is placed right before the signoff
-    if PORTFOLIO_MARKER not in body:
-        signoff = re.search(r"(?im)^(?:cheers|warm regards|best regards|kind regards|thanks|thank you|best)[,! ]*$", body)
-        if signoff:
-            body = f"{body[:signoff.start()].rstrip()}\n\n{fallback_sentence}\n\n{body[signoff.start():]}"
-        else:
-            body = f"{body.rstrip()}\n\n{fallback_sentence}"
-    else:
-        # If multiple markers exist, keep only the last one
-        parts = body.split(PORTFOLIO_MARKER)
-        body = "".join(parts[:-1]) + PORTFOLIO_MARKER + parts[-1]
-
+    # Clean double blank lines
+    body = re.sub(r'\n{3,}', '\n\n', body).strip()
     return body
 
 
@@ -196,17 +194,17 @@ Target Business Details:
 
 STRICT WRITING RULES:
 1. NO FILLER OPENERS: NEVER start with "I came across your business", "While reviewing places in {location}", or "I stumbled upon your website". Cut all introductory fluff and hit their exact operational pain point immediately in the first sentence.
-2. NO PRICING: NEVER mention prices, costs, rates, £129, or discounts. We do not sell cheap websites; we discuss business profit, booking leakage, and beating local competitors.
-3. Tone: Confident, sharp, executive-level British English. Include 3-4 tasteful emojis (✨, 💡, 📈, 📱, 🚀) to keep it engaging and modern.
-4. Business Value Structure:
+2. NO EMOJIS: Absolutely DO NOT use any emojis anywhere in the subject line or email body. Zero emojis. Maintain pure, sophisticated, high-level British business prose.
+3. NO PRICING: NEVER mention prices, costs, rates, £129, or discounts. We do not sell cheap websites; we discuss business profit, booking leakage, and beating local competitors.
+4. NO INLINE PORTFOLIO LINKS OR TEXT: Do NOT write any sentence about exploring portfolio, viewing selected work, or links in the body. The email template automatically handles the visual showcase below the letter.
+5. Business Value Structure:
    - Direct Pain Point Opening: "Hi {biz_name} team," followed immediately by how local mobile customers in {location} are currently slipping away to competing businesses because of {detected_flaws}. Over 75% of customers search and decide on mobile within seconds; any friction sends them straight to a local competitor.
    - The Competitive Edge Solution: Show how eliminating this friction helps them capture high-intent customers before competitors do:
-     • ⚡ 1-Tap Direct Action: Instant booking / inquiry widget capturing high-intent and after-hours customers before they bounce.
-     • 📍 Local Search Dominance: Outpositioning competitors in {location} mobile search with sub-second page speed.
-     • 📈 Revenue Retention: Turning mobile visitors into confirmed, paying customers instead of losing them.
-   - DIRECT CALL TO ACTION (NO COMPLIMENTARY WALKTHROUGH FLUFF): Ask directly for a brief 10-minute Google Meet or phone call:
+     • 1-Tap Direct Action: Instant booking / inquiry widget capturing high-intent and after-hours customers before they bounce.
+     • Local Search Dominance: Outpositioning competitors in {location} mobile search with sub-second page speed.
+     • Revenue Retention: Turning mobile visitors into confirmed, paying customers instead of losing them.
+   - DIRECT CALL TO ACTION: Ask directly for a brief 10-minute Google Meet or phone call:
      "Would you be open to a brief 10-minute Google Meet or quick call this Thursday or Friday to look at how we can eliminate this leak and outposition your local competitors?"
-5. Add this exact standalone sentence right before sign-off: "Explore recent selected systems (ONYX, Vespera, Skybound, L'Éclat Vendôme): [[PORTFOLIO_LINK]]"
 6. Sign-off:
    Warm regards,
    {config.SENDER_NAME}
@@ -214,19 +212,18 @@ STRICT WRITING RULES:
 
 Output format (Valid JSON only):
 {{
-    "subject": "Compelling, executive subject line with emoji (e.g. 'A quick observation regarding {biz_name} 💡' or 'Revenue & mobile booking idea for {biz_name} ✨')",
+    "subject": "Compelling, executive subject line WITHOUT emojis (e.g. 'Closing the mobile booking gap for {biz_name}' or 'Capturing mobile customer demand for {biz_name}')",
     "body": "The complete formatted email body"
 }}
 """
         messages = [
-            {"role": "system", "content": "You write high-converting, executive-level business growth emails for UK business owners focusing on ROI and competitor dominance without mentioning pricing. Return valid JSON only."},
+            {"role": "system", "content": "You write high-converting, executive-level business growth emails for UK business owners focusing on ROI and competitor dominance without mentioning pricing or using emojis. Return valid JSON only."},
             {"role": "user", "content": prompt}
         ]
         content = self._call_with_fallback(messages, json_mode=True)
         result = json.loads(content)
-        result["body"] = _ensure_portfolio_reference(
-            result.get("body", ""), "Explore recent selected systems (ONYX, Vespera, Skybound, L'Éclat Vendôme): [[PORTFOLIO_LINK]]"
-        )
+        result["subject"] = re.sub(r'[\U00010000-\U0010ffff]', '', result.get("subject", "")).strip()
+        result["body"] = _clean_body_copy(result.get("body", ""))
         return result
 
     def draft_followup_pitch(self, lead: dict, previous_subject: str = "") -> dict:
@@ -240,7 +237,7 @@ Output format (Valid JSON only):
         prompt = f"""
 You are {config.SENDER_NAME} from Kicksa Studio, following up with the owner/director of {biz_name} in {location}.
 Write a polite, direct, concise follow-up email focusing on booking retention and beating local competitors.
-DO NOT mention prices or cheap fees. DO NOT offer a video walkthrough. Ask for a brief 10-minute meet.
+DO NOT mention prices or cheap fees. DO NOT use emojis. DO NOT write portfolio link sentences. Ask for a brief 10-minute meet.
 
 Target Details:
 - Business Name: {biz_name}
@@ -249,10 +246,10 @@ Target Details:
 - Previous Subject: {previous_subject or "Our initial note"}
 
 Guidelines:
-1. Keep it short (under 90 words).
-2. Point out that local competitors in {location} are picking up high-intent mobile searches simply because of minor mobile friction on their end.
-3. Ask if they have 10 minutes for a quick Google Meet this week to walk through how to plug this leak.
-4. Add: "Explore recent selected systems (ONYX, Vespera, Skybound, L'Éclat Vendôme): [[PORTFOLIO_LINK]]"
+1. Keep it short (under 80 words).
+2. Absolutely NO emojis.
+3. Point out that local competitors in {location} are picking up high-intent mobile searches simply because of minor mobile friction on their end.
+4. Ask if they have 10 minutes for a quick Google Meet this week to walk through how to plug this leak.
 5. Sign-off:
    Warm regards,
    {config.SENDER_NAME}
@@ -260,19 +257,18 @@ Guidelines:
 
 Output format (Valid JSON only):
 {{
-    "subject": "Follow-up subject line (e.g. '10 min quick chat for {biz_name}? ☕' or 'Re: {previous_subject}')",
+    "subject": "Follow-up subject line WITHOUT emojis (e.g. '10 min quick chat for {biz_name}?' or 'Re: {previous_subject}')",
     "body": "The full formatted email body"
 }}
 """
         messages = [
-            {"role": "system", "content": "You write polite, executive-level follow-up emails for British local business owners focusing on ROI. Return valid JSON only."},
+            {"role": "system", "content": "You write polite, executive-level follow-up emails for British local business owners focusing on ROI without emojis. Return valid JSON only."},
             {"role": "user", "content": prompt}
         ]
         content = self._call_with_fallback(messages, json_mode=True)
         result = json.loads(content)
-        result["body"] = _ensure_portfolio_reference(
-            result.get("body", ""), "Explore recent selected systems (ONYX, Vespera, Skybound, L'Éclat Vendôme): [[PORTFOLIO_LINK]]"
-        )
+        result["subject"] = re.sub(r'[\U00010000-\U0010ffff]', '', result.get("subject", "")).strip()
+        result["body"] = _clean_body_copy(result.get("body", ""))
         return result
 
     def answer_incoming_reply(self, lead: dict, incoming_message: str) -> str:
