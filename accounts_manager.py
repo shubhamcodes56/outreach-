@@ -50,21 +50,38 @@ class AccountsManager:
                     print(f"[!] Error loading accounts DB: {e}")
                     self.accounts = {}
 
-            # Seed with default account from config/.env if empty
-            if not self.accounts and config.GMAIL_USER and config.GMAIL_APP_PASSWORD:
-                default_email = config.GMAIL_USER.strip().lower()
-                self.accounts[default_email] = {
-                    "email": default_email,
-                    "app_password": config.GMAIL_APP_PASSWORD.strip(),
-                    "sender_name": config.SENDER_NAME or "Shubham Dixit",
-                    "daily_limit": max(50, int(config.DAILY_LIMIT or 100)),
-                    "sent_today": 0,
-                    "last_sent_date": local_now().date().isoformat(),
-                    "status": "ACTIVE",
-                    "error_message": None,
-                    "cooldown_until": None,
-                    "created_at": local_now().strftime("%Y-%m-%d %H:%M:%S")
-                }
+            # Seed with default and secondary accounts from config/.env if not present
+            env_pairs = []
+            if config.GMAIL_USER and config.GMAIL_APP_PASSWORD:
+                env_pairs.append((config.GMAIL_USER.strip().lower(), config.GMAIL_APP_PASSWORD.strip(), config.SENDER_NAME or "Shubham Dixit"))
+
+            u2 = os.getenv("GMAIL_USER_2", "").strip().lower()
+            p2 = os.getenv("GMAIL_APP_PASSWORD_2", "").strip()
+            if u2 and p2:
+                env_pairs.append((u2, p2, os.getenv("YOUR_NAME_2", config.SENDER_NAME or "Shubham Dixit")))
+
+            extra_users = [u.strip().lower() for u in os.getenv("GMAIL_USERS", "").split(",") if u.strip()]
+            extra_pass = [p.strip() for p in os.getenv("GMAIL_APP_PASSWORDS", "").split(",") if p.strip()]
+            for u, p in zip(extra_users, extra_pass):
+                env_pairs.append((u, p, config.SENDER_NAME or "Shubham Dixit"))
+
+            changed = False
+            for email, app_pw, s_name in env_pairs:
+                if email not in self.accounts:
+                    self.accounts[email] = {
+                        "email": email,
+                        "app_password": app_pw,
+                        "sender_name": s_name,
+                        "daily_limit": max(50, int(config.DAILY_LIMIT or 100)),
+                        "sent_today": 0,
+                        "last_sent_date": local_now().date().isoformat(),
+                        "status": "ACTIVE",
+                        "error_message": None,
+                        "cooldown_until": None,
+                        "created_at": local_now().strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                    changed = True
+            if changed:
                 self._save()
 
             self._reset_daily_quotas_if_needed()
