@@ -297,3 +297,33 @@ Guidelines:
         ]
         content = self._call_with_fallback(messages, json_mode=False)
         return _ensure_portfolio_reference(content, "Recent client systems & live builds: [[PORTFOLIO_LINK]]")
+
+    def generate_reply_and_negotiate(self, lead: dict, conversation_history: list, latest_incoming_reply: str) -> dict:
+        history_text = "\n".join([f"{msg.get('sender', 'User')}: {msg.get('text', '')}" for msg in conversation_history])
+        prompt = f"""
+You are {config.SENDER_NAME} from Kicksa Studio, responding to a prospective client who replied to your proposal.
+Business: {lead.get('Business Name', 'Client')}
+History:
+{history_text}
+
+Latest message from client:
+"{latest_incoming_reply}"
+
+Guidelines:
+1. Tone: Direct, executive, high-trust, professional. NO emojis.
+2. If they ask about budget/cost: Explain that Kicksa delivers custom high-converting architectures rather than template sites, and propose a quick 10-minute Google Meet to review their exact workflow.
+3. If interested: Suggest a brief 10-minute Google Meet or call this week.
+4. Output JSON only:
+{{
+    "detected_intent": "INTERESTED / PRICE_INQUIRY / READY_FOR_MEETING / NOT_INTERESTED",
+    "reply_body": "Short, clear response"
+}}
+"""
+        messages = [
+            {"role": "system", "content": "You write executive-level client negotiation responses for Kicksa Studio without emojis. JSON only."},
+            {"role": "user", "content": prompt}
+        ]
+        content = self._call_with_fallback(messages, json_mode=True)
+        res = json.loads(content)
+        res["reply_body"] = _clean_body_copy(res.get("reply_body", ""))
+        return res

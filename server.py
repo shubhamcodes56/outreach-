@@ -9,7 +9,7 @@ import smtplib
 import imaplib
 import email
 from email.utils import parsedate_to_datetime
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
@@ -30,29 +30,24 @@ AUTO_SEND_STATE_FILE = os.path.join(os.path.dirname(__file__), "auto_send_uk_sta
 LEAD_SEARCH_STATE_FILE = os.path.join(os.path.dirname(__file__), "lead_search_uk_state.json")
 
 
-def load_auto_send_state():
-    if os.path.exists(AUTO_SEND_STATE_FILE):
-        try:
-            with open(AUTO_SEND_STATE_FILE, "r") as f:
-                return json.load(f).get("auto_send", True)
-        except Exception:
-            pass
-    return True
-
-
-def save_auto_send_state(val):
-    try:
-        with open(AUTO_SEND_STATE_FILE, "w") as f:
-            json.dump({"auto_send": val}, f)
-    except Exception:
-        pass
-
-
 def load_lead_search_state():
     if os.path.exists(LEAD_SEARCH_STATE_FILE):
         try:
             with open(LEAD_SEARCH_STATE_FILE, "r") as f:
-                return json.load(f).get("lead_search", True)
+                data = json.load(f)
+                resume_after = data.get("resume_after")
+                if resume_after:
+                    resume_dt = datetime.fromisoformat(resume_after.replace("Z", "+00:00"))
+                    if datetime.now(timezone.utc) >= resume_dt:
+                        data["lead_search"] = True
+                        data["resume_after"] = None
+                        with open(LEAD_SEARCH_STATE_FILE, "w") as out:
+                            json.dump(data, out, indent=4)
+                        add_log("[HUNTER RESUMED] 48-hour re-outreach window ended! Automatic lead hunting resumed.")
+                        return True
+                    else:
+                        return False
+                return data.get("lead_search", True)
         except Exception:
             pass
     return True
@@ -60,15 +55,15 @@ def load_lead_search_state():
 
 def save_lead_search_state(val):
     try:
+        data = {"lead_search": val}
         with open(LEAD_SEARCH_STATE_FILE, "w") as f:
-            json.dump({"lead_search": val}, f)
+            json.dump(data, f, indent=4)
     except Exception:
         pass
 
 
-WORKER_RUNNING = True
-AUTO_SEND_ENABLED = load_auto_send_state()
 LEAD_SEARCH_ENABLED = load_lead_search_state()
+
 HARVEST_INTERVAL_SECONDS = 60
 HARVEST_BATCH_SIZE = 30
 HARVEST_LOCK = threading.Lock()
@@ -287,7 +282,8 @@ def continuous_harvester_loop():
     while True:
         cycle_started = time.monotonic()
         try:
-            if not WORKER_RUNNING or not LEAD_SEARCH_ENABLED:
+            is_active = load_lead_search_state()
+            if not WORKER_RUNNING or not is_active:
                 time.sleep(5)
                 continue
 
@@ -318,7 +314,8 @@ def continuous_drafter_loop():
 
     while True:
         try:
-            if not WORKER_RUNNING:
+            is_active = load_lead_search_state()
+            if not WORKER_RUNNING or not is_active:
                 time.sleep(4)
                 continue
 
@@ -422,7 +419,8 @@ def continuous_sender_loop():
 
     while True:
         try:
-            if not WORKER_RUNNING or not AUTO_SEND_ENABLED:
+            is_active = load_lead_search_state()
+            if not WORKER_RUNNING or not is_active:
                 time.sleep(3)
                 continue
 
@@ -551,7 +549,8 @@ def continuous_autochat_and_bounce_loop():
 
     while True:
         try:
-            if not WORKER_RUNNING:
+            is_active = load_lead_search_state()
+            if not WORKER_RUNNING or not is_active:
                 time.sleep(10)
                 continue
 
