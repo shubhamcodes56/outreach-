@@ -29,6 +29,28 @@ CORS(app)
 AUTO_SEND_STATE_FILE = os.path.join(os.path.dirname(__file__), "auto_send_uk_state.json")
 LEAD_SEARCH_STATE_FILE = os.path.join(os.path.dirname(__file__), "lead_search_uk_state.json")
 
+def load_auto_send_state():
+    if os.path.exists(AUTO_SEND_STATE_FILE):
+        try:
+            with open(AUTO_SEND_STATE_FILE, "r") as f:
+                return json.load(f).get("auto_send", True)
+        except Exception:
+            pass
+    return True
+
+
+def save_auto_send_state(val):
+    try:
+        with open(AUTO_SEND_STATE_FILE, "w") as f:
+            json.dump({"auto_send": val}, f)
+    except Exception:
+        pass
+
+
+WORKER_RUNNING = True
+AUTO_SEND_ENABLED = load_auto_send_state()
+
+
 
 def load_lead_search_state():
     if os.path.exists(LEAD_SEARCH_STATE_FILE):
@@ -63,6 +85,7 @@ def save_lead_search_state(val):
 
 
 LEAD_SEARCH_ENABLED = load_lead_search_state()
+
 
 HARVEST_INTERVAL_SECONDS = 60
 HARVEST_BATCH_SIZE = 30
@@ -283,6 +306,7 @@ def continuous_harvester_loop():
         cycle_started = time.monotonic()
         try:
             is_active = load_lead_search_state()
+            is_active = load_lead_search_state()
             if not WORKER_RUNNING or not is_active:
                 time.sleep(5)
                 continue
@@ -314,8 +338,7 @@ def continuous_drafter_loop():
 
     while True:
         try:
-            is_active = load_lead_search_state()
-            if not WORKER_RUNNING or not is_active:
+            if not WORKER_RUNNING:
                 time.sleep(4)
                 continue
 
@@ -419,8 +442,7 @@ def continuous_sender_loop():
 
     while True:
         try:
-            is_active = load_lead_search_state()
-            if not WORKER_RUNNING or not is_active:
+            if not WORKER_RUNNING or not AUTO_SEND_ENABLED:
                 time.sleep(3)
                 continue
 
@@ -549,6 +571,7 @@ def continuous_autochat_and_bounce_loop():
 
     while True:
         try:
+            is_active = load_lead_search_state()
             is_active = load_lead_search_state()
             if not WORKER_RUNNING or not is_active:
                 time.sleep(10)
@@ -1031,6 +1054,9 @@ def harvest_now():
 
 
 def do_harvest():
+    if not load_lead_search_state():
+        add_log('[HUNTER] Harvest blocked: Lead search is currently paused.')
+        return
     if not HARVEST_LOCK.acquire(blocking=False):
         add_log("Manual harvest skipped: an automatic harvest is already running.")
         return
