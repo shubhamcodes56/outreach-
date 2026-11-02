@@ -1,7 +1,7 @@
 """
-Nexus UK AI Proposal Generator & Drafting Agent.
-Generates high-converting, human-like, emoji-rich mini-proposals specifically tailored
-for independent UK business owners, cafes, clinics, and tradespeople.
+Nexus UK AI Proposal Generator & Drafting Agent (Kicksa Studio).
+Generates high-converting, business-revenue focused proposals without upfront pricing.
+Focuses on ROI, customer acquisition, booking leakage, and profit growth.
 """
 
 import json
@@ -35,7 +35,7 @@ def _ensure_portfolio_reference(body: str, fallback_sentence: str) -> str:
     """Keep generated copy clean and place one clickable portfolio marker right before the sign-off."""
     body = str(body or "").strip()
     
-    # Remove any http/www links the model might have written inside the letter
+    # Remove any raw URLs the model might have written inside the letter
     body = re.sub(r"(?i)\bhttps?://[^\s<>\"']+", "", body)
     body = re.sub(r"(?i)\bwww\.[^\s<>\"']+", "", body)
 
@@ -112,8 +112,6 @@ class AIAgent:
 
         self.groq_cooldowns = [0.0] * len(self.groq_clients)
         self.groq_disabled = [False] * len(self.groq_clients)
-
-        # OmniRoute and Kimi clients
         self.omniroute_disabled = True
         self.kimi_disabled = True
 
@@ -172,87 +170,93 @@ class AIAgent:
 
     def draft_initial_outreach(self, lead: dict) -> dict:
         """
-        Drafts a high-impact, catchy, human-like proposal email with tasteful emojis
-        specifically designed for UK business owners.
+        Drafts a high-impact, business-minded proposal from Kicksa Studio.
+        Focuses on ROI, customer acquisition, booking leakage, and revenue growth.
+        NEVER mentions upfront pricing.
         """
         biz_name = lead.get('Business Name', lead.get('name', 'Business'))
         location = lead.get('City / Address', lead.get('location', 'UK'))
         category = lead.get('Category', lead.get('sector', 'Local Business'))
         website = lead.get('Website', lead.get('website', 'None'))
         pitch_angle = lead.get('Freelance Pitch Angle', lead.get('pitch_angle', 'Modern mobile rebuild'))
-        detected_flaws = "; ".join(lead.get('Website Issues', [])) if lead.get('Website Issues') else "Outdated mobile UX, missing Google Schema"
+        detected_flaws = "; ".join(lead.get('Website Issues', [])) if lead.get('Website Issues') else "Mobile friction & missing Google Schema"
 
         prompt = f"""
-You are {config.SENDER_NAME}, an independent web designer and conversion specialist reaching out to an independent UK business.
-Write a warm, authentic, highly engaging proposal email. It should feel handwritten by a real human, not an automated robot, and include tasteful emojis to make it lively and easy to scan.
+You are {config.SENDER_NAME} from Kicksa Studio, a premium digital systems agency helping high-performing UK local businesses scale direct bookings, enquiries, and profit.
+Write an authentic, highly engaging business-growth email to the owner/director of {biz_name}.
+Think like a seasoned digital partner who cares about their bottom-line revenue, not a cheap freelancer selling web pages.
 
-Target UK Business Details:
+Target Business Details:
 - Business Name: {biz_name}
-- Category: {category}
+- Industry: {category}
 - Location: {location}
-- Current Website: {website}
-- Detected Friction Points: {detected_flaws}
-- Pitch Angle: {pitch_angle}
-- Base Flat Price: {config.BASE_PRICE} (UK Pounds £)
+- Current Web Presence: {website}
+- Observed Digital Friction: {detected_flaws}
+- Core Angle: {pitch_angle}
 
-Strict Writing Guidelines for UK Business Owners:
-1. Tone: Warm, human, friendly, professional British tone. Use natural contractions ("I've", "you'd", "we're").
-2. Emojis: Include 3-5 tasteful emojis (e.g. ✨, 💡, 📍, ☕, 📱, 🚀) to structure points and make it catchy.
-3. Structure like a High-Quality Mini-Proposal:
-   - Opening: A friendly greeting ("Hi {biz_name} team," or "Hi there,") and a warm compliment showing you noticed their spot in {location}.
-   - The Audit / Friction: Mention that while checking their website on a phone, you noticed 1-2 specific friction points (e.g., menu/services aren't thumb-friendly, missing Google Maps Schema markup, or lack of instant 1-click booking/enquiry).
-   - The Proposal: Outline a crisp 2-3 bullet point upgrade:
-     • 📱 Modern, clean mobile-first redesign built for 2026
-     • ⚡ 1-click WhatsApp/Call button & fast booking calendar
-     • 📍 Google Maps Schema so more locals in {location} find you
-   - The Offer & Terms: Flat {config.BASE_PRICE} (strictly British Pounds £129, no hidden fees, no monthly retainer, 100% full ownership). Delivered in 48 to 72 hours.
-   - Low-Pressure CTA: Ask if they’d be open to seeing a free 60-second video demo or concept preview for {biz_name} this week.
-4. Add this exact standalone sentence right before sign-off: "Examples of my recent work: [[PORTFOLIO_LINK]]"
-5. British Sign-off: "Cheers,\n{config.SENDER_NAME}" or "Warm regards,\n{config.SENDER_NAME}".
-6. No raw URLs. Currency must ALWAYS be British Pounds (£129). Never mention Dollars ($) or Rupees (₹).
+STRICT WRITING RULES:
+1. NO PRICING: NEVER mention prices, costs, rates, £129, or discounts. We do not sell cheap websites; we discuss business profit, booking leakage, and customer conversion.
+2. Tone: Confident, sharp, warm, executive-level, professional British English. Include 3-4 tasteful emojis (✨, 💡, 📈, 📱, 🚀) to keep it engaging and modern.
+3. Business Value Structure:
+   - Opening: A respectful, genuine greeting to the {biz_name} team, recognizing their strong reputation in {location}.
+   - The Revenue Leak: Explain that while auditing their digital customer journey on mobile, you identified a friction point that quietly costs them paying customers every single week:
+     (e.g., over 70% of high-intent local customers browse on phones—if menus/services are hard to tap or booking takes more than 2 clicks, they immediately bounce to a competitor).
+   - The Profit Solution: Outline how Kicksa builds custom high-converting mobile engines:
+     • ⚡ Instant 1-tap booking / table reservation & WhatsApp call widget (capturing after-hours enquiries).
+     • 📍 Google Maps & Local Schema integration so you rank above local competitors when customers search in {location}.
+     • 📈 Built-in trust architecture with live Google Review showcase.
+   - Low-Pressure Next Step: Offer to send over a complimentary 60-second video walkthrough showing the exact spots where {biz_name} is losing mobile traffic and how we eliminate that friction.
+4. Add this exact standalone sentence right before sign-off: "Explore recent Kicksa systems & live builds: [[PORTFOLIO_LINK]]"
+5. Sign-off:
+   Warm regards,
+   {config.SENDER_NAME}
+   Kicksa Studio
 
 Output format (Valid JSON only):
 {{
-    "subject": "Catchy, authentic subject line with an emoji (e.g. 'Quick idea for {biz_name} ✨' or 'Spotted your website in {location} 💡')",
-    "body": "The full formatted email body"
+    "subject": "Compelling, executive subject line with emoji (e.g. 'A quick observation regarding {biz_name} 💡' or 'Revenue & mobile booking idea for {biz_name} ✨')",
+    "body": "The complete formatted email body"
 }}
 """
         messages = [
-            {"role": "system", "content": "You are a master UK copywriter who writes human, authentic, high-converting web design proposals for British business owners with clean emoji formatting. Return valid JSON only."},
+            {"role": "system", "content": "You write high-converting, executive-level business growth emails for UK business owners focusing on ROI and customer acquisition without mentioning pricing. Return valid JSON only."},
             {"role": "user", "content": prompt}
         ]
         content = self._call_with_fallback(messages, json_mode=True)
         result = json.loads(content)
         result["body"] = _ensure_portfolio_reference(
-            result.get("body", ""), "Examples of my recent work: [[PORTFOLIO_LINK]]"
+            result.get("body", ""), "Explore recent Kicksa systems & live builds: [[PORTFOLIO_LINK]]"
         )
         return result
 
     def draft_followup_pitch(self, lead: dict, previous_subject: str = "") -> dict:
         """
-        Drafts a high-impact, gentle follow-up email with emojis and deeper audit points.
+        Drafts a high-impact, gentle follow-up email from Kicksa Studio focusing on business profit and booking impact.
         """
         biz_name = lead.get('Business Name', lead.get('name', 'Business'))
         location = lead.get('City / Address', lead.get('location', 'UK'))
         detected_flaws = "; ".join(lead.get('Website Issues', [])) if lead.get('Website Issues') else "Slow mobile load, missing reviews proof"
 
         prompt = f"""
-You are {config.SENDER_NAME}, following up with the owner of {biz_name} in {location}.
-Write a polite, warm, human-like follow-up email. Keep it light, friendly, with 2-3 tasteful emojis.
+You are {config.SENDER_NAME} from Kicksa Studio, following up with the owner/director of {biz_name} in {location}.
+Write a polite, warm, concise follow-up email focusing on booking retention and customer acquisition.
+DO NOT mention prices or cheap fees. Keep it focused on revenue and customer experience.
 
 Target Details:
 - Business Name: {biz_name}
 - Location: {location}
-- Audit Observations: {detected_flaws}
-- Price: {config.BASE_PRICE} (flat fee)
+- Friction Point: {detected_flaws}
 - Previous Subject: {previous_subject or "Our initial note"}
 
 Guidelines:
-1. Acknowledge they're probably busy running {biz_name}.
-2. Mention you drafted a quick concept layout that solves the mobile navigation and Google Maps visibility.
-3. Reiterate the flat {config.BASE_PRICE} rate and 48-72h turnaround.
-4. Add: "Examples of my recent work: [[PORTFOLIO_LINK]]"
-5. Friendly British sign-off: "Cheers,\n{config.SENDER_NAME}".
+1. Acknowledge they're busy running daily operations at {biz_name}.
+2. Reiterate that we mapped out a quick concept showing how eliminating mobile friction increases direct reservations/enquiries in {location}.
+3. Ask if they’d be open to a 60-second video demo showing how this works.
+4. Add: "Explore recent Kicksa systems & live builds: [[PORTFOLIO_LINK]]"
+5. Sign-off:
+   Warm regards,
+   {config.SENDER_NAME}
+   Kicksa Studio
 
 Output format (Valid JSON only):
 {{
@@ -261,35 +265,39 @@ Output format (Valid JSON only):
 }}
 """
         messages = [
-            {"role": "system", "content": "You write polite, human, effective follow-up emails for British local business owners. Return valid JSON only."},
+            {"role": "system", "content": "You write polite, executive-level follow-up emails for British local business owners focusing on ROI. Return valid JSON only."},
             {"role": "user", "content": prompt}
         ]
         content = self._call_with_fallback(messages, json_mode=True)
         result = json.loads(content)
         result["body"] = _ensure_portfolio_reference(
-            result.get("body", ""), "Examples of my recent work: [[PORTFOLIO_LINK]]"
+            result.get("body", ""), "Explore recent Kicksa systems & live builds: [[PORTFOLIO_LINK]]"
         )
         return result
 
     def answer_incoming_reply(self, lead: dict, incoming_message: str) -> str:
         """
-        Drafts a high-converting, professional response to an interested UK business owner.
+        Drafts a high-converting, professional response to an interested UK business owner from Kicksa Studio.
         """
         prompt = f"""
-You are {config.SENDER_NAME}, responding to a reply from a UK business owner.
+You are {config.SENDER_NAME} from Kicksa Studio, responding to a reply from a UK business owner.
 Business Name: {lead.get('Business Name', 'Client')}
 Their Message: "{incoming_message}"
 
 Guidelines:
 1. Be warm, enthusiastic, polite, and British in tone.
-2. Answer their question clearly.
-3. Reiterate the flat {config.BASE_PRICE} price, 48-72 hour delivery, and offer to share a preview or hop on a 5-minute call.
-4. Include: "Recent client examples: [[PORTFOLIO_LINK]]"
-5. Sign-off: "Cheers,\n{config.SENDER_NAME}".
+2. Answer their question with clarity and confidence.
+3. Focus on their business goals (more bookings, seamless mobile experience, saving staff time).
+4. Offer to share a personalized 60-second concept preview or arrange a quick 5-minute call.
+5. Include: "Recent client systems & live builds: [[PORTFOLIO_LINK]]"
+6. Sign-off:
+   Warm regards,
+   {config.SENDER_NAME}
+   Kicksa Studio
 """
         messages = [
-            {"role": "system", "content": "You are a professional web consultant assisting UK business owners. Reply directly in text."},
+            {"role": "system", "content": "You are a senior digital consultant at Kicksa Studio assisting UK business owners. Reply directly in text."},
             {"role": "user", "content": prompt}
         ]
         content = self._call_with_fallback(messages, json_mode=False)
-        return _ensure_portfolio_reference(content, "Recent client examples: [[PORTFOLIO_LINK]]")
+        return _ensure_portfolio_reference(content, "Recent client systems & live builds: [[PORTFOLIO_LINK]]")
