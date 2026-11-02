@@ -43,8 +43,8 @@ IMAP_PORT = 993
 SENDER_NAME = os.getenv("YOUR_NAME", "Shubham Dixit")
 BASE_PRICE = os.getenv("STARTING_PRICE", "£129")
 PORTFOLIO_URL = os.getenv("PORTFOLIO_URL", "https://portfolio-public-theta-three.vercel.app/").strip()
-MIN_DELAY_SECONDS = int(os.getenv("MIN_DELAY_SECONDS", "4"))
-MAX_DELAY_SECONDS = int(os.getenv("MAX_DELAY_SECONDS", "8"))
+MIN_DELAY_SECONDS = int(os.getenv("MIN_DELAY_SECONDS", "1"))
+MAX_DELAY_SECONDS = int(os.getenv("MAX_DELAY_SECONDS", "3"))
 DAILY_LIMIT = int(os.getenv("DAILY_EMAIL_LIMIT", "200"))
 PORT = int(os.getenv("PORT", "5070"))
 

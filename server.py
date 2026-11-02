@@ -363,7 +363,7 @@ def continuous_drafter_loop():
                     if r.get("status") == "NEW":
                         if "@" in em and "." in em.split("@")[-1]:
                             target_items.append((em, r["lead_info"]))
-                            if len(target_items) >= 12:
+                            if len(target_items) >= 25:
                                 break
                         else:
                             r["status"] = "FAILED"
@@ -383,7 +383,7 @@ def continuous_drafter_loop():
                                 SHARED_DB[target_email]["last_updated"] = time.strftime("%Y-%m-%d %H:%M:%S")
                         persist_db()
                         add_log(f"[AI DRAFT READY] Drafted pitch for {lead_info.get('Business Name')} ({target_email})")
-                        time.sleep(0.4)
+                        time.sleep(0.1)
                     except AIProviderRateLimitError as e:
                         delay = min(10, max(2, e.retry_after_seconds or 5))
                         reason = "Brief key rotation cooldown."
