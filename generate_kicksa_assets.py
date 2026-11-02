@@ -1,7 +1,9 @@
 """
 Generates Kicksa brand assets:
-1. Minimal modern logo for header.
-2. High-impact animated loop showcase GIF displaying recent client work & ROI metrics.
+1. Actual Minimalist Retina Logo (kicksa_logo.png)
+2. Real Selected Work Showcase Loop GIF (kicksa_showcase_loop.gif)
+   Featuring real projects: ONYX, PDR WORLD, KAKTUS, SALVAS.
+   Matches the aesthetic of portfolio selected work (no fake claims).
 """
 
 import os
@@ -13,28 +15,42 @@ os.makedirs(ASSETS_DIR, exist_ok=True)
 os.makedirs(DIST_ASSETS_DIR, exist_ok=True)
 
 
-def draw_rounded_rect(draw, bbox, radius, fill, outline=None, width=1):
-    draw.rounded_rectangle(bbox, radius=radius, fill=fill, outline=outline, width=width)
+def get_font(name="segoeui.ttf", size=14, bold=False):
+    try:
+        font_file = "segoeuib.ttf" if bold else "segoeui.ttf"
+        return ImageFont.truetype(font_file, size)
+    except Exception:
+        try:
+            font_file = "arialbd.ttf" if bold else "arial.ttf"
+            return ImageFont.truetype(font_file, size)
+        except Exception:
+            return ImageFont.load_default()
 
 
 def create_kicksa_logo():
-    """Creates an ultra-minimal modern dark geometric logo for Kicksa."""
-    size = (160, 48)
-    img = Image.new("RGBA", size, (0, 0, 0, 0))
+    """Creates a high-resolution retina logo for Kicksa Studio."""
+    w, h = 360, 72
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
 
-    # Minimal emblem: rounded square with sleek neon cyan accent
-    draw_rounded_rect(draw, (4, 6, 38, 40), radius=8, fill=(18, 18, 22), outline=(39, 39, 42), width=1)
-    
-    # Stylized minimal 'K' symbol
-    # Left vertical stem
-    draw.rectangle((14, 14, 17, 32), fill=(255, 255, 255))
-    # Upper right angle
-    draw.line([(18, 23), (28, 14)], fill=(0, 242, 254), width=3)
-    # Lower right angle
-    draw.line([(18, 23), (28, 32)], fill=(255, 255, 255), width=3)
+    # Minimal emblem box (rounded square)
+    draw.rounded_rectangle((4, 8, 56, 60), radius=12, fill=(16, 16, 22), outline=(42, 42, 54), width=2)
 
-    # Save PNG
+    # Stylized minimal 'K' symbol
+    # Vertical bar
+    draw.rectangle((20, 20, 25, 48), fill=(255, 255, 255))
+    # Upper cyan diagonal
+    draw.line([(26, 34), (41, 20)], fill=(0, 242, 254), width=4)
+    # Lower white diagonal
+    draw.line([(26, 34), (41, 48)], fill=(255, 255, 255), width=4)
+
+    # Typography: KICKSA STUDIO
+    font_bold = get_font(size=24, bold=True)
+    font_sub = get_font(size=14, bold=True)
+
+    draw.text((70, 20), "KICKSA", fill=(255, 255, 255), font=font_bold)
+    draw.text((176, 26), "STUDIO", fill=(113, 113, 122), font=font_sub)
+
     path1 = os.path.join(ASSETS_DIR, "kicksa_logo.png")
     path2 = os.path.join(DIST_ASSETS_DIR, "kicksa_logo.png")
     img.save(path1, "PNG")
@@ -44,103 +60,120 @@ def create_kicksa_logo():
 
 def create_showcase_loop_gif():
     """
-    Creates an ultra-sleek, dark-mode animated GIF showcasing 3 real-world client upgrades
-    and their direct business profit/revenue impact in a continuous smooth loop.
+    Creates an ultra-clean, portfolio-authentic animated GIF showcasing
+    real engineering & design projects: ONYX, PDR WORLD, KAKTUS, SALVAS.
     """
-    w, h = 540, 200
-    frames = []
+    w, h = 540, 215
 
-    slides_data = [
+    # 4 Real Portfolio Projects
+    projects = [
         {
-            "tag": "CASE STUDY 01 • INDEPENDENT DINING & CAFE",
-            "tag_color": (0, 242, 254),
-            "title": "Mobile-First Ordering & Table Reservation",
-            "sub": "Converted clunky PDF menu into instant 1-tap mobile experience.",
-            "stat_val": "+42% Local Bookings",
-            "stat_sub": "Zero commission lost to third-party aggregators",
-            "accent": (0, 242, 254)
+            "num": "01",
+            "name": "ONYX · DIGITAL EXPERIENCE",
+            "category": "BRAND / COMMERCE",
+            "headline": "High-contrast product storytelling & dark commerce architecture.",
+            "tags": ["BRAND EXPERIENCE", "COMMERCE", "DESIGN"],
+            "color": (0, 242, 254)  # Cyan
         },
         {
-            "tag": "CASE STUDY 02 • PRIVATE CLINICS & DENTAL",
-            "tag_color": (52, 211, 153),
-            "title": "24/7 After-Hours Patient Consultation Portal",
-            "sub": "Integrated live scheduling calendar & verified patient review proof.",
-            "stat_val": "Zero Missed Patients",
-            "stat_sub": "Automated WhatsApp & Email booking confirmations",
-            "accent": (52, 211, 153)
+            "num": "02",
+            "name": "PDR WORLD · PLATFORM",
+            "category": "WORKFLOW / CLOUD",
+            "headline": "Enterprise workflow ecosystem, repair telemetry & dispatch platform.",
+            "tags": ["ENTERPRISE", "REACT/NODE", "SYSTEMS"],
+            "color": (255, 180, 0)  # Amber
         },
         {
-            "tag": "CASE STUDY 03 • CONTRACTORS & TRADES",
-            "tag_color": (251, 191, 36),
-            "title": "Google Local SEO & Emergency Quote Funnel",
-            "sub": "Engineered LocalBusiness Schema for immediate Google Maps discovery.",
-            "stat_val": "2.8x Quote Inquiries",
-            "stat_sub": "Sticky tap-to-call mobile buttons for instant jobs",
-            "accent": (251, 191, 36)
+            "num": "03",
+            "name": "KAKTUS · SAAS INTERFACE",
+            "category": "DEVELOPER TOOLING",
+            "headline": "Next-gen cloud IDE interface, telemetry & automated agent pipelines.",
+            "tags": ["SAAS", "INTERFACE", "REALTIME"],
+            "color": (16, 185, 129)  # Emerald
+        },
+        {
+            "num": "04",
+            "name": "SALVAS · RESCUE ECOSYSTEM",
+            "category": "CRITICAL SYSTEMS",
+            "headline": "Emergency response telemetry, hospital ping & offline fail-safe architecture.",
+            "tags": ["IOT/EDGE", "CRITICAL INFRA", "MOBILE"],
+            "color": (239, 68, 68)  # Crimson/Coral
         }
     ]
 
-    for s_idx, data in enumerate(slides_data):
-        # Create base slide
-        base = Image.new("RGB", (w, h), (14, 14, 18))
-        draw = ImageDraw.Draw(base)
+    font_label = get_font(size=10, bold=True)
+    font_title = get_font(size=14, bold=True)
+    font_desc = get_font(size=12, bold=False)
+    font_tag = get_font(size=9, bold=True)
+    font_ticker = get_font(size=10, bold=True)
 
-        # Card outer border
-        draw_rounded_rect(draw, (1, 1, w - 2, h - 2), radius=12, fill=(18, 18, 23), outline=(39, 39, 45), width=1)
+    frames = []
 
-        # Top tag pill
-        tag_w = len(data["tag"]) * 6 + 18
-        draw_rounded_rect(draw, (20, 16, 20 + tag_w, 34), radius=4, fill=(24, 24, 32), outline=data["accent"], width=1)
-        draw.text((28, 19), data["tag"], fill=data["accent"])
+    for idx, proj in enumerate(projects):
+        img = Image.new("RGB", (w, h), (9, 9, 12))
+        draw = ImageDraw.Draw(img)
 
-        # Main Title
-        draw.text((20, 48), data["title"], fill=(255, 255, 255))
-        draw.text((20, 72), data["sub"], fill=(161, 161, 170))
+        # Main Card background with subtle outline
+        draw.rounded_rectangle((10, 10, w - 10, h - 10), radius=10, fill=(17, 17, 23), outline=(36, 36, 48), width=1)
 
-        # Divider line
-        draw.line([(20, 102), (w - 20, 102)], fill=(34, 34, 42), width=1)
+        # Header bar of card (matches user portfolio screenshot)
+        draw.text((26, 22), "06 SELECTED PROJECTS", fill=(161, 161, 170), font=font_label)
+        draw.text((345, 22), "BRAND / PRODUCT / INTERFACE", fill=(113, 113, 122), font=font_label)
+        draw.line([(26, 38), (w - 26, 38)], fill=(28, 28, 38), width=1)
 
-        # Bottom Metric Box
-        draw_rounded_rect(draw, (20, 114, w - 20, 180), radius=8, fill=(13, 13, 17), outline=(28, 28, 35), width=1)
-        
-        # Metric accent badge
-        draw.rectangle((20, 114, 25, 180), fill=data["accent"])
-        draw.text((38, 126), "PROFIT IMPACT:", fill=(113, 113, 122))
-        draw.text((140, 124), data["stat_val"], fill=(255, 255, 255))
-        draw.text((38, 150), data["stat_sub"], fill=data["accent"])
+        # Project number badge & slide dots
+        draw.rectangle((26, 50, 142, 68), fill=(24, 24, 34), outline=(42, 42, 56), width=1)
+        draw.text((32, 53), f"FEATURED / {proj['num']}", fill=proj["color"], font=font_tag)
 
-        # Slide indicator dots in corner
-        for dot_i in range(3):
-            dot_color = data["accent"] if dot_i == s_idx else (45, 45, 55)
-            draw.ellipse((w - 55 + dot_i * 12, 22, w - 47 + dot_i * 12, 30), fill=dot_color)
+        # Dot indicators
+        dot_start_x = w - 80
+        for d in range(len(projects)):
+            dot_color = proj["color"] if d == idx else (50, 50, 65)
+            draw.ellipse((dot_start_x + (d * 14), 56, dot_start_x + (d * 14) + 6, 62), fill=dot_color)
 
-        # Hold frame for 2.2 seconds (each frame is ~2200ms)
-        frames.append((base, 2200))
+        # Project Title
+        draw.text((26, 80), proj["name"], fill=(255, 255, 255), font=font_title)
 
-    # Save as animated loop GIF
+        # Project Description
+        draw.text((26, 105), proj["headline"], fill=(180, 180, 195), font=font_desc)
+
+        # Project Tags
+        tag_x = 26
+        for tag in proj["tags"]:
+            tag_w = draw.textlength(tag, font=font_tag) + 14
+            draw.rounded_rectangle((tag_x, 134, tag_x + tag_w, 150), radius=4, fill=(24, 24, 34), outline=(42, 42, 56), width=1)
+            draw.text((tag_x + 7, 136), tag, fill=(161, 161, 170), font=font_tag)
+            tag_x += int(tag_w + 8)
+
+        # Ticker line at the bottom (like user portfolio screenshot)
+        draw.rectangle((10, h - 38, w - 10, h - 10), fill=(12, 12, 16))
+        draw.line([(10, h - 38), (w - 10, h - 38)], fill=(28, 28, 38), width=1)
+        ticker_text = "✦  DIGITAL EXPERIENCES   ✦   PRODUCT STORYTELLING   ✦   COMMERCE   ✦   SYSTEM ARCHITECTURE  ✦"
+        draw.text((26, h - 28), ticker_text, fill=(113, 113, 122), font=font_ticker)
+
+        # 20 frames per project at 100ms = 2.0s per project
+        for _ in range(20):
+            frames.append(img)
+
     path1 = os.path.join(ASSETS_DIR, "kicksa_showcase_loop.gif")
     path2 = os.path.join(DIST_ASSETS_DIR, "kicksa_showcase_loop.gif")
-
-    imgs = [f[0] for f in frames]
-    durations = [f[1] for f in frames]
-
-    imgs[0].save(
+    frames[0].save(
         path1,
         save_all=True,
-        append_images=imgs[1:],
-        duration=durations,
+        append_images=frames[1:],
+        duration=100,
         loop=0,
         optimize=True
     )
-    imgs[0].save(
+    frames[0].save(
         path2,
         save_all=True,
-        append_images=imgs[1:],
-        duration=durations,
+        append_images=frames[1:],
+        duration=100,
         loop=0,
         optimize=True
     )
-    print(f"Created showcase loop GIF: {path1}")
+    print(f"Created showcase GIF: {path1} ({len(frames)} frames)")
 
 
 if __name__ == "__main__":

@@ -68,6 +68,7 @@ def build_kicksa_premium_html(sender_name: str, to_email: str, subject: str, bod
             )
 
     body_html = '\n'.join(formatted_paragraphs)
+    logo_url = "https://raw.githubusercontent.com/shubhamcodes56/outreach-/main/assets/kicksa_logo.png"
     showcase_gif_url = "https://raw.githubusercontent.com/shubhamcodes56/outreach-/main/assets/kicksa_showcase_loop.gif"
 
     return f"""<!DOCTYPE html>
@@ -85,31 +86,15 @@ def build_kicksa_premium_html(sender_name: str, to_email: str, subject: str, bod
         <!-- Main Card (Max 580px) -->
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width: 580px; background-color: #111116; border: 1px solid #23232b; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);">
           
-          <!-- Header Bar with Minimalist Kicksa Logo -->
+          <!-- Header Bar with Actual Kicksa Logo (No Growth Systems Badge) -->
           <tr>
-            <td style="padding: 20px 28px; border-bottom: 1px solid #1f1f27; background-color: #0d0d12;">
+            <td style="padding: 22px 28px; border-bottom: 1px solid #1f1f27; background-color: #0c0c10;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
                   <td align="left" style="vertical-align: middle;">
-                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-                      <tr>
-                        <td style="vertical-align: middle; padding-right: 10px;">
-                          <!-- Geometric Minimal 'K' Emblem -->
-                          <div style="width: 30px; height: 30px; background: #181822; border: 1px solid #2a2a38; border-radius: 7px; text-align: center; line-height: 28px;">
-                            <span style="color: #00f2fe; font-weight: 900; font-size: 15px; font-family: monospace;">K</span>
-                          </div>
-                        </td>
-                        <td style="vertical-align: middle;">
-                          <span style="font-size: 15px; font-weight: 900; letter-spacing: 2.2px; color: #ffffff; text-transform: uppercase;">KICKSA</span>
-                          <span style="font-size: 9px; font-weight: 700; color: #71717a; letter-spacing: 1.5px; margin-left: 6px; text-transform: uppercase;">STUDIO</span>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                  <td align="right" style="vertical-align: middle;">
-                    <span style="display: inline-block; font-size: 9px; font-family: -apple-system, monospace; font-weight: 700; color: #00f2fe; background-color: rgba(0, 242, 254, 0.08); border: 1px solid rgba(0, 242, 254, 0.28); padding: 4px 10px; border-radius: 12px; letter-spacing: 0.8px; text-transform: uppercase;">
-                      GROWTH SYSTEMS
-                    </span>
+                    <a href="{portfolio_url}" target="_blank" style="text-decoration: none; display: inline-block;">
+                      <img src="{logo_url}" alt="KICKSA STUDIO" height="32" style="display: block; height: 32px; width: auto; border: 0;" />
+                    </a>
                   </td>
                 </tr>
               </table>
@@ -123,21 +108,21 @@ def build_kicksa_premium_html(sender_name: str, to_email: str, subject: str, bod
             </td>
           </tr>
 
-          <!-- Featured Work Showcase with Loop Animation -->
+          <!-- Real Projects Selected Work Showcase (ONYX, PDR WORLD, KAKTUS, SALVAS) -->
           <tr>
             <td style="padding: 10px 28px 28px 28px;">
               <div style="padding-top: 20px; border-top: 1px solid #1f1f27;">
                 <div style="font-size: 10px; font-weight: 800; letter-spacing: 1.5px; color: #a1a1aa; text-transform: uppercase; margin-bottom: 12px;">
-                  FEATURED CLIENT REBUILDS &amp; PROFIT IMPACT
+                  SELECTED WORK &bull; SYSTEMS ARCHITECTURE (ONYX, PDR WORLD, KAKTUS, SALVAS)
                 </div>
                 <!-- Animated Showcase Loop GIF -->
                 <a href="{portfolio_url}" target="_blank" style="display: block; text-decoration: none;">
-                  <img src="{showcase_gif_url}" alt="Kicksa Interactive Showcase Loop" width="100%" style="display: block; width: 100%; max-width: 524px; border-radius: 8px; border: 1px solid #2a2a38; box-shadow: 0 4px 16px rgba(0,0,0,0.4);" />
+                  <img src="{showcase_gif_url}" alt="Kicksa Selected Projects" width="100%" style="display: block; width: 100%; max-width: 524px; border-radius: 8px; border: 1px solid #2a2a38; box-shadow: 0 4px 16px rgba(0,0,0,0.4);" />
                 </a>
                 <!-- CTA Button -->
                 <div style="text-align: center; margin-top: 20px;">
-                  <a href="{portfolio_url}" target="_blank" style="display: inline-block; background-color: #ffffff; color: #09090b; font-size: 13px; font-weight: 700; padding: 12px 26px; border-radius: 6px; text-decoration: none; letter-spacing: -0.2px; box-shadow: 0 2px 10px rgba(255, 255, 255, 0.15);">
-                    Explore Live Client Systems &amp; Proof &rarr;
+                  <a href="{portfolio_url}" target="_blank" style="display: inline-block; background-color: #ffffff; color: #09090b; font-size: 13px; font-weight: 700; padding: 12px 28px; border-radius: 6px; text-decoration: none; letter-spacing: -0.2px; box-shadow: 0 2px 10px rgba(255, 255, 255, 0.15);">
+                    Explore Architecture &amp; Selected Work &rarr;
                   </a>
                 </div>
               </div>
@@ -148,10 +133,10 @@ def build_kicksa_premium_html(sender_name: str, to_email: str, subject: str, bod
           <tr>
             <td style="padding: 18px 28px; background-color: #0b0b0f; border-top: 1px solid #1a1a22; text-align: center;">
               <p style="margin: 0; font-size: 11px; color: #71717a; font-weight: 500;">
-                Kicksa Studio &bull; Digital Architecture &amp; Customer Acquisition
+                Kicksa Studio &bull; Digital Architecture &amp; Conversion Systems
               </p>
               <p style="margin: 6px 0 0 0; font-size: 10px; color: #3f3f46;">
-                Delivering high-converting mobile engines across the UK &bull; Reply &apos;opt out&apos; to unsubscribe
+                Engineered for high-performing modern businesses &bull; Reply &apos;opt out&apos; to unsubscribe
               </p>
             </td>
           </tr>
