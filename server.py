@@ -409,13 +409,8 @@ def restore_send_target(target_email, retry_after=None, message=None):
     with DB_LOCK:
         record = SHARED_DB.get(target_email)
         if record:
-            history = record.get("history", [])
-            if history_has_outbound(history):
-                has_client_reply = any(
-                    isinstance(item, dict) and str(item.get("sender", "")).strip().lower() == "client"
-                    for item in history
-                )
-                record["status"] = "NEGOTIATING" if has_client_reply else "SENT"
+            if record.get("kicksa_sent"):
+                record["status"] = "SENT"
                 record["error_message"] = None
                 record.pop("retry_after", None)
             else:
@@ -468,12 +463,8 @@ def continuous_sender_loop():
                 for em, r in SHARED_DB.items():
                     if r.get("status") == "DRAFTED" and r.get("draft"):
                         if "@" in em and "." in em.split("@")[-1]:
-                            if history_has_outbound(r.get("history", [])):
-                                has_client_reply = any(
-                                    isinstance(item, dict) and str(item.get("sender", "")).strip().lower() == "client"
-                                    for item in r.get("history", [])
-                                )
-                                r["status"] = "NEGOTIATING" if has_client_reply else "SENT"
+                            if r.get("kicksa_sent"):
+                                r["status"] = "SENT"
                                 r["error_message"] = None
                                 r.pop("retry_after", None)
                                 repaired_sent_state = True
@@ -508,6 +499,7 @@ def continuous_sender_loop():
                     with DB_LOCK:
                         if target_email in SHARED_DB:
                             SHARED_DB[target_email]["status"] = "SENT"
+                            SHARED_DB[target_email]["kicksa_sent"] = True
                             SHARED_DB[target_email]["assigned_sender"] = used_sender
                             SHARED_DB[target_email]["error_message"] = None
                             SHARED_DB[target_email].pop("retry_after", None)
