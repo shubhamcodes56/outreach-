@@ -27,6 +27,7 @@ CORS(app)
 
 # Global Engine Controls
 AUTO_SEND_STATE_FILE = os.path.join(os.path.dirname(__file__), "auto_send_uk_state.json")
+LEAD_SEARCH_STATE_FILE = os.path.join(os.path.dirname(__file__), "lead_search_uk_state.json")
 
 
 def load_auto_send_state():
@@ -47,8 +48,27 @@ def save_auto_send_state(val):
         pass
 
 
+def load_lead_search_state():
+    if os.path.exists(LEAD_SEARCH_STATE_FILE):
+        try:
+            with open(LEAD_SEARCH_STATE_FILE, "r") as f:
+                return json.load(f).get("lead_search", True)
+        except Exception:
+            pass
+    return True
+
+
+def save_lead_search_state(val):
+    try:
+        with open(LEAD_SEARCH_STATE_FILE, "w") as f:
+            json.dump({"lead_search": val}, f)
+    except Exception:
+        pass
+
+
 WORKER_RUNNING = True
 AUTO_SEND_ENABLED = load_auto_send_state()
+LEAD_SEARCH_ENABLED = load_lead_search_state()
 HARVEST_INTERVAL_SECONDS = 60
 HARVEST_BATCH_SIZE = 30
 HARVEST_LOCK = threading.Lock()
@@ -267,7 +287,7 @@ def continuous_harvester_loop():
     while True:
         cycle_started = time.monotonic()
         try:
-            if not WORKER_RUNNING:
+            if not WORKER_RUNNING or not LEAD_SEARCH_ENABLED:
                 time.sleep(5)
                 continue
 
@@ -695,6 +715,7 @@ def get_stats():
         "meeting_booked": meeting_booked,
         "worker_running": WORKER_RUNNING,
         "auto_send": AUTO_SEND_ENABLED,
+        "lead_search_enabled": LEAD_SEARCH_ENABLED,
         "harvest_interval_seconds": HARVEST_INTERVAL_SECONDS,
         "sender_pause_until": pause_until.isoformat() if pause_until else None,
         "sender_pause_reason": pause_reason,
@@ -992,6 +1013,15 @@ def toggle_autosend():
     save_auto_send_state(AUTO_SEND_ENABLED)
     add_log(f"Auto-Send state changed: {'ACTIVE' if AUTO_SEND_ENABLED else 'PAUSED'}")
     return jsonify({"auto_send": AUTO_SEND_ENABLED})
+
+
+@app.route("/api/leadsearch/toggle", methods=["POST"])
+def toggle_lead_search():
+    global LEAD_SEARCH_ENABLED
+    LEAD_SEARCH_ENABLED = not LEAD_SEARCH_ENABLED
+    save_lead_search_state(LEAD_SEARCH_ENABLED)
+    add_log(f"Lead Search state changed: {'HUNTING ACTIVE' if LEAD_SEARCH_ENABLED else 'HUNTING PAUSED (Outreach continues)'}")
+    return jsonify({"lead_search_enabled": LEAD_SEARCH_ENABLED})
 
 
 @app.route("/api/harvest-now", methods=["POST"])

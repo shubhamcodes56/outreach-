@@ -113,6 +113,15 @@ export default function App() {
     }
   };
 
+  const toggleLeadSearch = async () => {
+    try {
+      await fetch(`${API_BASE}/leadsearch/toggle`, { method: "POST" });
+      fetchData();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const triggerHarvest = async () => {
     setHarvesting(true);
     try {
@@ -420,6 +429,29 @@ export default function App() {
           >
             <Zap size={11} color="#00f2fe" />
             {harvesting ? "SEARCHING..." : "SEARCH NOW"}
+          </button>
+
+          {/* Lead Search (Hunter) Pause / Resume Toggle */}
+          <button
+            onClick={toggleLeadSearch}
+            title={stats?.lead_search_enabled !== false ? "Click to Pause automatic lead hunting" : "Click to Start automatic lead hunting"}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              backgroundColor: stats?.lead_search_enabled !== false ? "rgba(0, 242, 254, 0.12)" : "rgba(239, 68, 68, 0.12)",
+              color: stats?.lead_search_enabled !== false ? "#00f2fe" : "#f87171",
+              border: `1px solid ${stats?.lead_search_enabled !== false ? "rgba(0, 242, 254, 0.3)" : "rgba(239, 68, 68, 0.3)"}`,
+              padding: "4px 10px",
+              borderRadius: "5px",
+              fontSize: "11px",
+              fontWeight: 600,
+              cursor: "pointer",
+              transition: "all 0.15s ease",
+            }}
+          >
+            <span style={{ width: "5px", height: "5px", borderRadius: "50%", backgroundColor: stats?.lead_search_enabled !== false ? "#00f2fe" : "#f87171" }} />
+            {stats?.lead_search_enabled !== false ? "LEAD SEARCH: ON" : "LEAD SEARCH: PAUSED"}
           </button>
 
           {/* Auto-Send Toggle Button */}
