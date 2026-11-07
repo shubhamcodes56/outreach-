@@ -186,6 +186,11 @@ def is_temporary_send_error(err):
     return isinstance(err, (smtplib.SMTPServerDisconnected, smtplib.SMTPConnectError, TimeoutError, ConnectionError))
 
 
+def defer_temporary_send_error(target_email, err, delay_minutes=15):
+    restore_send_target(target_email, retry_after=local_now() + timedelta(minutes=delay_minutes), message=f"Temporary send error: {str(err)[:50]}")
+    add_log(f"[TEMPORARY SEND ERROR] {target_email} deferred for {delay_minutes}m: {err}")
+
+
 def parse_retry_after(value):
     if not value:
         return None
