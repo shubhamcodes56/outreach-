@@ -1131,4 +1131,4 @@ if __name__ == "__main__":
         raise SystemExit(1)
     add_log(f"Starting Nexus UK & British Isles API Backend on port {config.PORT}")
     start_background_workers()
-    app.run(host="0.0.0.0", port=config.PORT, debug=False)
+    app.run(host="0.0.0.0", port=config.PORT, debug=False, threaded=True)
