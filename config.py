@@ -45,7 +45,7 @@ BASE_PRICE = os.getenv("STARTING_PRICE", "£129")
 PORTFOLIO_URL = os.getenv("PORTFOLIO_URL", "https://portfolio-public-theta-three.vercel.app/").strip()
 MIN_DELAY_SECONDS = int(os.getenv("MIN_DELAY_SECONDS", "1"))
 MAX_DELAY_SECONDS = int(os.getenv("MAX_DELAY_SECONDS", "3"))
-DAILY_LIMIT = int(os.getenv("DAILY_LIMIT", "100"))
+DAILY_LIMIT = int(os.getenv("DAILY_LIMIT", "200"))
 PORT = int(os.getenv("PORT", "5070"))
 
 # Database & State files for UK Engine
